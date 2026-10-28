@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>學習單連結總表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#f6f4ef; --surface:#ffffff; --ink:#22262b; --muted:#6b7280; --line:#e4e0d6;
+  --accent:#b5543a; --accent-soft:#f6e6df; --teal:#2f6f73; --teal-soft:#e1efef;
+  --warn-bg:#fff6dc; --warn-ink:#7a5a00; --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181b; --surface:#1f2226; --ink:#eceae4; --muted:#9aa0a8; --line:#33373d;
+    --accent:#e07a5f; --accent-soft:#3a2620; --teal:#6fb3b7; --teal-soft:#1c3133;
+    --warn-bg:#3a3110; --warn-ink:#f0d68a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181b; --surface:#1f2226; --ink:#eceae4; --muted:#9aa0a8; --line:#33373d;
+  --accent:#e07a5f; --accent-soft:#3a2620; --teal:#6fb3b7; --teal-soft:#1c3133;
+  --warn-bg:#3a3110; --warn-ink:#f0d68a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.5}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.brand small{display:block;color:var(--muted);font-size:13px;letter-spacing:.08em}
+.brand h1{margin:2px 0 6px;font-size:26px;font-weight:700}
+.brand .lead{margin:0;color:var(--muted);font-size:14px;max-width:640px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.search{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);min-width:200px}
+.btn{text-decoration:none;display:inline-block;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.units{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.unit{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px}
+.unit.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.notice{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:18px;display:none}
+.notice.show{display:block}
+.station{margin:26px 0 12px}
+.station h2{font-size:17px;margin:0;color:var(--teal)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 18px;text-align:left;color:var(--ink);box-shadow:var(--shadow);transition:transform .12s,border-color .12s;font-size:18px;font-weight:700;line-height:1.4}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.empty{color:var(--muted);padding:40px 0;text-align:center}
+footer{margin-top:40px;color:var(--muted);font-size:12px}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(15,17,20,.55);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:20}
+.overlay.show{display:flex}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:1100px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.modal-head .who{font-size:13px;color:var(--muted)}
+.modal-head h3{margin:2px 0 0;font-size:21px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.tile{position:relative;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface)}
+.tile .g{font-weight:700;font-size:16px;color:var(--teal)}
+.tile .d{font-size:13px;color:var(--ink);background:var(--teal-soft);border-radius:999px;padding:1px 10px;min-height:20px}
+.tile .d.none{background:none;color:var(--muted)}
+.tile.today{border:2px solid var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.tile.today .d{background:var(--accent);color:#fff}
+.tile .tag{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:var(--accent)}
+.qr{width:100%;max-width:150px;aspect-ratio:1;background:#fff;border-radius:6px;padding:4px;cursor:zoom-in;margin-top:4px}
+.qr svg{width:100%;height:100%;display:block}
+.tile .url{font-size:12px;color:var(--muted);word-break:break-all;text-align:center}
+.tile .acts{display:flex;gap:6px}
+.tile .acts .btn{padding:4px 10px;font-size:13px}
+.tile.missing{opacity:.55}
+.tile.missing .qr{display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;cursor:default}
+
+/* presenter */
+.present{position:fixed;inset:0;background:var(--bg);z-index:30;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px}
+.present.show{display:flex}
+.present .pc{font-size:18px;color:var(--muted);text-align:center}
+.present .pg{font-size:44px;font-weight:700;color:var(--teal);line-height:1.2}
+.present .pd{font-size:20px;color:var(--ink)}
+.present .pq{width:min(64vh,82vw);aspect-ratio:1;background:#fff;padding:14px;border-radius:12px}
+.present .pq svg{width:100%;height:100%}
+.present .pu{font-size:15px;color:var(--muted)}
+.present .nav{display:flex;gap:10px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;z-index:40;pointer-events:none}
+.toast.show{opacity:1}
+
+@media print{
+  body{background:#fff}
+  .wrap,.present,.toast{display:none!important}
+  .overlay{position:static;display:block!important;background:none;padding:0}
+  .modal{box-shadow:none;padding:0;max-width:none}
+  .modal-head .tools{display:none}
+  .qgrid{grid-template-columns:repeat(5,1fr);gap:8px}
+  .tile{break-inside:avoid;border:1px solid #ccc!important;box-shadow:none!important}
+  .tile .acts,.tile .tag{display:none}
+  .tile .d{background:none!important;color:#000!important}
+  .qr{max-width:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <small id="subtitle">藥學實習生訓練</small>
+      <h1 id="pageTitle">學習單連結總表</h1>
+      <p class="lead">點選課程開啟各組 QR Code，今天要使用的組別會以紅框標示。學生掃描作答；老師點「開啟」用自己的帳號登入查看作答狀況。點 QR Code 可放大投影，鍵盤左右鍵切換組別。</p>
+    </div>
+    <div class="tools">
+      <input class="search" id="search" type="search" placeholder="搜尋課程或編號">
+      <button class="btn" id="reload" title="重新讀取試算表">重新整理</button>
+    </div>
+  </header>
+  <nav class="units" id="units"></nav>
+  <div class="notice" id="notice"></div>
+  <main id="list"></main>
+  <footer id="foot"></footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div><div class="who" id="mWho"></div><h3 id="mName"></h3></div>
+      <div class="tools">
+        <button class="btn" id="mCopy">複製全部連結</button>
+        <button class="btn" id="mPrint">列印 QR Code</button>
+        <button class="btn primary" id="mClose">關閉</button>
+      </div>
+    </div>
+    <div class="qgrid" id="mGrid"></div>
+  </div>
+</div>
+
+<div class="present" id="present">
+  <div class="pc" id="pCourse"></div>
+  <div class="pg" id="pGroup"></div>
+  <div class="pd" id="pDate"></div>
+  <div class="pq" id="pQr"></div>
+  <div class="pu" id="pUrl"></div>
+  <div class="nav">
+    <button class="btn" id="pPrev">上一組</button>
+    <button class="btn primary" id="pClose">返回</button>
+    <button class="btn" id="pNext">下一組</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================== 設定區（只需要改這裡） ================== */
+const CONFIG = {
+  // Google 試算表 ID：網址 docs.google.com/spreadsheets/d/【這一段】/edit
+  // 留空時會顯示下方的範例資料
+  sheetId: '1X__GvmJ0QizyHbUkrTEWC9N3cerPKonbmo599WSX0Hs',
+  // 單位清單所在的工作表名稱
+  unitListSheet: '單位清單',
+  // 日期分頁的名稱 = 單位名稱 + 這個字尾，例如「門診_日期」
+  dateSheetSuffix: '_日期',
+  // 沒有指定 ?unit= 時預設開啟的單位
+  defaultUnit: '門診',
+  // 試算表沒填網址前綴時使用
+  defaultBaseUrl: 'https://pha.lib.cmuh.org.tw/course/',
+  title: '學習單連結總表',
+  subtitle: '藥學實習生訓練'
+};
+
+/* 範例資料：試算表讀不到時使用（編號與日期皆為示意） */
+const SAMPLE = (() => {
+  const names = [
+    '初階藥學實習生_立夫門診調劑台_學前測驗',
+    '初階藥學實習生_立夫門診調劑台_學中測驗',
+    '初階藥學實習生_立夫門診調劑台_學後測驗',
+    '初階藥學實習生_立夫門診審核台_審核處方注意事項',
+    '初階藥學實習生_立夫門診審核台_管制藥品',
+    '初階藥學實習生_立夫門診審核台_血糖藥',
+    '初階藥學實習生_立夫門診審核台_門診審核藥品相關常見問題'
+  ];
+  const fmt = d => `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  const day = (g, off) => { const d = new Date(2026, 9, 26 + g * 7 + off); return fmt(d); };
+  const dateOf = (i, g) => i === 0 ? day(g, 0) : i === 1 ? day(g, 2) : i === 2 ? day(g, 4) : `${day(g, 0)}~${day(g, 4)}`;
+  return {
+    units: [{ name: '門診', baseUrl: CONFIG.defaultBaseUrl }],
+    courses: {
+      '門診': names.map((name, i) => ({
+        name,
+        groups: Array.from({ length: 10 }, (_, g) => ({ group: g + 1, id: String(1791 + i * 10 + g), date: dateOf(i, g) }))
+      }))
+    }
+  };
+})();
+/* ============================================================ */
+
+const $ = s => document.querySelector(s);
+const state = { units: [], unit: '', courses: [], source: '', current: null, pIndex: 0 };
+
+function parseCSV(text){
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ','){ row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r'){
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows.map(r => r.map(v => v.trim())).filter(r => r.some(v => v !== ''));
+}
+
+async function fetchSheet(name){
+  const url = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(name)}&_=${Date.now()}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  if (/^\s*</.test(text)) throw new Error('試算表未開放檢視');
+  return parseCSV(text);
+}
+
+function readUnits(rows){
+  const h = rows[0] || [];
+  const iName = h.findIndex(x => x.includes('單位'));
+  const iBase = h.findIndex(x => x.includes('網址'));
+  return rows.slice(1).map(r => ({
+    name: r[iName < 0 ? 0 : iName],
+    baseUrl: (iBase >= 0 && r[iBase]) || CONFIG.defaultBaseUrl
+  })).filter(u => u.name);
+}
+
+/* 編號分頁與日期分頁版面相同：課程名稱 + 第1組…第N組 */
+function readGrid(rows){
+  const h = rows[0] || [];
+  const iShow = h.findIndex(x => x.includes('顯示'));
+  const iName = h.findIndex(x => x.includes('課程'));
+  const gCols = h.map((x, i) => { const m = x.match(/第\s*(\d+)\s*組/); return m ? { i, g: +m[1] } : null; }).filter(Boolean);
+  return rows.slice(1).map(r => {
+    const v = iShow < 0 ? '' : (r[iShow] || '').toUpperCase();
+    return {
+      name: r[iName] || '',
+      hidden: v === 'N' || v === '否' || v === 'FALSE',
+      cells: gCols.map(({ i, g }) => ({ group: g, value: (r[i] || '').replace(/\.0+$/, '') }))
+    };
+  }).filter(c => c.name);
+}
+
+function mergeCourses(idRows, dateRows){
+  const dates = {};
+  readGrid(dateRows || []).forEach(c => { dates[c.name] = {}; c.cells.forEach(x => dates[c.name][x.group] = x.value); });
+  return readGrid(idRows).filter(c => !c.hidden).map(c => ({
+    name: c.name,
+    groups: c.cells.map(x => ({ group: x.group, id: x.value, date: (dates[c.name] || {})[x.group] || '' }))
+  }));
+}
+
+/* 日期：支援 2026/11/3、11/3、2026-11-3、11/3/2026，區間用 ~ 或 至 或 - 分隔 */
+function parseDay(s, refYear){
+  s = s.trim(); let m;
+  if ((m = s.match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})$/))) return new Date(+m[1], m[2] - 1, +m[3]);
+  if ((m = s.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})$/))) return new Date(+m[3], m[1] - 1, +m[2]);
+  if ((m = s.match(/^(\d{1,2})[\/.](\d{1,2})$/))) return new Date(refYear, m[1] - 1, +m[2]);
+  return null;
+}
+function parseRange(text){
+  if (!text) return null;
+  const now = new Date(), y = now.getFullYear();
+  const parts = text.split(/\s*(?:~|～|至|到|\s-\s|–)\s*/);
+  let a = parseDay(parts[0], y), b = parts[1] ? parseDay(parts[1], a ? a.getFullYear() : y) : a;
+  if (!a) return null;
+  if (!b) b = a;
+  if (b < a) b.setFullYear(b.getFullYear() + 1);
+  return { a, b };
+}
+function isToday(text){
+  const r = parseRange(text); if (!r) return false;
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return t >= r.a && t <= r.b;
+}
+function showDate(text){
+  const r = parseRange(text); if (!r) return text || '';
+  const f = d => `${d.getMonth() + 1}/${d.getDate()}`;
+  return +r.a === +r.b ? f(r.a) : `${f(r.a)} ~ ${f(r.b)}`;
+}
+
+function linkOf(id){
+  if (!id) return '';
+  if (/^https?:\/\//i.test(id)) return id;
+  const base = (state.units.find(u => u.name === state.unit) || {}).baseUrl || CONFIG.defaultBaseUrl;
+  return base.replace(/\/?$/, '/') + id;
+}
+
+function splitName(name){
+  const p = name.split('_');
+  if (p.length >= 3) return { who: p[0], station: p[1], title: p.slice(2).join('_') };
+  if (p.length === 2) return { who: '', station: p[0], title: p[1] };
+  return { who: '', station: '其他', title: name };
+}
+
+function qrSvg(text){
+  const qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), m = 2, size = n + m * 2; let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += `M${c + m},${r + m}h1v1h-1z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges"><rect width="${size}" height="${size}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1600); }
+async function copy(text){
+  try { await navigator.clipboard.writeText(text); toast('已複製'); }
+  catch { const a = document.createElement('textarea'); a.value = text; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); toast('已複製'); } catch { toast('無法複製，請手動選取'); } a.remove(); }
+}
+
+function notice(msg){ const n = $('#notice'); n.textContent = msg || ''; n.classList.toggle('show', !!msg); }
+
+function renderUnits(){
+  $('#units').innerHTML = state.units.length > 1 ? state.units.map(u =>
+    `<button class="unit${u.name === state.unit ? ' on' : ''}" data-u="${esc(u.name)}">${esc(u.name)}</button>`).join('') : '';
+}
+
+function renderList(){
+  const kw = $('#search').value.trim().toLowerCase();
+  const list = state.courses.map((c, idx) => ({ ...c, idx, ...splitName(c.name) }))
+    .filter(c => !kw || c.name.toLowerCase().includes(kw) || c.groups.some(g => g.id.includes(kw)));
+  if (!list.length){ $('#list').innerHTML = `<div class="empty">${state.courses.length ? '找不到符合的課程' : '這個單位還沒有課程資料'}</div>`; return; }
+  const stations = [];
+  list.forEach(c => { let s = stations.find(x => x.name === c.station); if (!s) stations.push(s = { name: c.station, items: [] }); s.items.push(c); });
+  $('#list').innerHTML = stations.map(s => `
+    <section>
+      <div class="station"><h2>${esc(s.name)}</h2></div>
+      <div class="grid">${s.items.map(c => `<button class="card" data-i="${c.idx}">${esc(c.title)}</button>`).join('')}</div>
+    </section>`).join('');
+}
+
+function openCourse(i){
+  const c = state.courses[i]; state.current = c;
+  const n = splitName(c.name);
+  $('#mWho').textContent = [n.who, n.station].filter(Boolean).join('｜');
+  $('#mName').textContent = n.title;
+  $('#mGrid').innerHTML = c.groups.map((g, k) => {
+    const url = linkOf(g.id), today = isToday(g.date);
+    const date = g.date ? `<div class="d">${esc(showDate(g.date))}</div>` : `<div class="d none">未排日期</div>`;
+    if (!url) return `<div class="tile missing"><div class="g">第 ${g.group} 組</div>${date}<div class="qr">尚未填編號</div></div>`;
+    return `<div class="tile${today ? ' today' : ''}">
+      ${today ? '<span class="tag">今天</span>' : ''}
+      <div class="g">第 ${g.group} 組</div>
+      ${date}
+      <div class="qr" data-k="${k}" title="點擊放大投影">${qrSvg(url)}</div>
+      <div class="url">${esc(url)}</div>
+      <div class="acts"><a class="btn" href="${esc(url)}" target="_blank" rel="noopener">開啟</a><button class="btn" data-copy="${esc(url)}">複製</button></div>
+    </div>`;
+  }).join('');
+  $('#overlay').classList.add('show'); document.body.style.overflow = 'hidden';
+  const t = $('#mGrid .tile.today'); if (t) t.scrollIntoView({ block: 'nearest' });
+}
+function closeCourse(){ $('#overlay').classList.remove('show'); document.body.style.overflow = ''; }
+
+function showPresent(k){
+  const gs = state.current.groups; const valid = gs.map((g, i) => linkOf(g.id) ? i : -1).filter(i => i >= 0);
+  if (!valid.length) return;
+  if (!valid.includes(k)) k = valid[0];
+  state.pIndex = k; const g = gs[k]; const url = linkOf(g.id);
+  $('#pCourse').textContent = splitName(state.current.name).title;
+  $('#pGroup').textContent = `第 ${g.group} 組`;
+  $('#pDate').textContent = showDate(g.date);
+  $('#pQr').innerHTML = qrSvg(url); $('#pUrl').textContent = url;
+  $('#present').classList.add('show');
+}
+function stepPresent(d){
+  const gs = state.current.groups; let k = state.pIndex;
+  for (let t = 0; t < gs.length; t++){ k = (k + d + gs.length) % gs.length; if (linkOf(gs[k].id)) break; }
+  showPresent(k);
+}
+
+async function load(){
+  $('#pageTitle').textContent = CONFIG.title; $('#subtitle').textContent = CONFIG.subtitle; document.title = CONFIG.title;
+  const want = new URLSearchParams(location.search).get('unit');
+  notice('');
+  if (CONFIG.sheetId){
+    try {
+      state.units = readUnits(await fetchSheet(CONFIG.unitListSheet));
+      if (!state.units.length) throw new Error('單位清單是空的');
+      state.unit = state.units.some(u => u.name === want) ? want : (state.units.some(u => u.name === CONFIG.defaultUnit) ? CONFIG.defaultUnit : state.units[0].name);
+      const idRows = await fetchSheet(state.unit);
+      let dateRows = [];
+      try { dateRows = await fetchSheet(state.unit + CONFIG.dateSheetSuffix); } catch {}
+      state.courses = mergeCourses(idRows, dateRows);
+      state.source = '試算表';
+    } catch (e) {
+      useSample(want);
+      notice(`無法讀取 Google 試算表（${e.message}），目前顯示範例資料。請確認試算表已設定為「知道連結的任何人都能檢視」。`);
+    }
+  } else {
+    useSample(want);
+    notice('尚未連接 Google 試算表，目前顯示的是範例編號與日期。設定 sheetId 後會自動改讀試算表。');
+  }
+  renderUnits(); renderList();
+  $('#foot').textContent = `資料來源：${state.source}｜更新時間：${new Date().toLocaleString('zh-TW', { hour12: false })}`;
+}
+function useSample(want){
+  state.units = SAMPLE.units;
+  state.unit = SAMPLE.courses[want] ? want : SAMPLE.units[0].name;
+  state.courses = SAMPLE.courses[state.unit] || [];
+  state.source = '範例資料';
+}
+
+$('#units').addEventListener('click', e => {
+  const b = e.target.closest('[data-u]'); if (!b) return;
+  const u = new URL(location.href); u.searchParams.set('unit', b.dataset.u); history.replaceState(null, '', u); load();
+});
+$('#list').addEventListener('click', e => { const c = e.target.closest('[data-i]'); if (c) openCourse(+c.dataset.i); });
+$('#search').addEventListener('input', renderList);
+$('#reload').addEventListener('click', () => load().then(() => toast('已重新讀取')));
+$('#mClose').addEventListener('click', closeCourse);
+$('#overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeCourse(); });
+$('#mGrid').addEventListener('click', e => {
+  const cp = e.target.closest('[data-copy]'); if (cp) return copy(cp.dataset.copy);
+  const q = e.target.closest('[data-k]'); if (q) showPresent(+q.dataset.k);
+});
+$('#mCopy').addEventListener('click', () => {
+  const n = splitName(state.current.name);
+  copy([n.title, ...state.current.groups.filter(g => g.id).map(g => `第${g.group}組\t${showDate(g.date)}\t${linkOf(g.id)}`)].join('\n'));
+});
+$('#mPrint').addEventListener('click', () => window.print());
+$('#pClose').addEventListener('click', () => $('#present').classList.remove('show'));
+$('#pPrev').addEventListener('click', () => stepPresent(-1));
+$('#pNext').addEventListener('click', () => stepPresent(1));
+document.addEventListener('keydown', e => {
+  if ($('#present').classList.contains('show')){
+    if (e.key === 'Escape') $('#present').classList.remove('show');
+    if (e.key === 'ArrowRight') stepPresent(1);
+    if (e.key === 'ArrowLeft') stepPresent(-1);
+  } else if (e.key === 'Escape') closeCourse();
+});
+load();
+</script>
+</body>
+</html>
